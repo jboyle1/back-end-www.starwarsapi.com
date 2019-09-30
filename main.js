@@ -1,6 +1,4 @@
-const baseURL = "https://swapi.co/api/";
-
-function getData(type, cb) {
+function getData(url, cb) {
     var xhr = new XMLHttpRequest();
 
     xhr.onreadystatechange = function() {
@@ -9,7 +7,7 @@ function getData(type, cb) {
         }
     };
 
-    xhr.open("GET", baseURL + type + "/");
+    xhr.open("GET", url);
     xhr.send();
 }
 
@@ -17,18 +15,33 @@ function getTableHeaders(obj) {
     var tableHeaders = [];
 
     Object.keys(obj).forEach(function(key) {
-        tableHeaders.push(`<td>${key}</td>`)
+        tableHeaders.push(`<td>${key}</td>`);
     });
 
     return `<tr>${tableHeaders}</tr>`;
 }
 
-function writeToDocument(type) {
-    var el = document.getElementById("data");
-    el.innerHTML = "";
+function generatePaginationButtons(next, prev) {
+    if (next && prev) {
+        return `<button onclick="writeToDocument('${prev}')">Previous</button>
+                <button onclick="writeToDocument('${next}')">Next</button>`;
+    } else if (next && !prev) {
+        return `<button onclick="writeToDocument('${next}')">Next</button>`;
+    } else if (!next && prev) {
+        return `<button onclick="writeToDocument('${prev}')">Previous</button>`;
+    }
+}
 
-    getData(type, function(data) {
-        var tableRows = [];
+function writeToDocument(url) {
+    var tableRows = [];
+    var el = document.getElementById("data");
+
+    getData(url, function(data) {
+        var pagination = "";
+
+        if (data.next || data.previous) {
+            pagination = generatePaginationButtons(data.next, data.previous);
+        }
         data = data.results;
         var tableHeaders = getTableHeaders(data[0]);
 
@@ -36,45 +49,78 @@ function writeToDocument(type) {
             var dataRow = [];
 
             Object.keys(item).forEach(function(key) {
-                dataRow.push(`<td>${item[key]}</td>`);
+                var rowData = item[key].toString();
+                var truncatedData = rowData.substring(0, 15);
+                dataRow.push(`<td>${truncatedData}</td>`);
             });
-            tableRows.push(dataRow)
+            tableRows.push(`<tr>${dataRow}</tr>`);
         });
 
-        el.innerHTML = `<table>${tableHeaders}</table>`;
+        el.innerHTML = `<table>${tableHeaders}${tableRows}</table>${pagination}`;
     });
 }
 
-//In our last video, we put our table headers in place.
-//Now let's start adding tabular data to the rest of our table.
-//To do this, we're going to create a new row of data for every record in the array.
-//So what I'm going to do at the top of my writeToDocument() function is I'm going to create a new empty array called tableRows.
-//and tableRows will house each row of data for us.
-//So we'll just create that as an empty array.
-//And then following the table heading, I'm going to add that into a template literal here, tableRows.
-//So we'll have our heading, and then we'll have rows of data.
-//And now in our forEach() function here, what we need to do is create an empty array, first of all, for each individual row.
-//and then we're going to iterate over our keys again.
-//So using the same method as before, object.keys(item)
-//Use the farEach() method.
-//The function inside that is going to push each element onto our data row.
-//And what I want to do is create a new 'td', or tableCell element, for each of these items.
-//So we'll do that in our template literal here.
-//And what we do is we have {$item}, and then we pass in [key] as the index, so this will actually get us the data that's in each individual key. Rather than just the key name itself, we'll get the value.
-//Okay, so that's creating an individual row.
-//When that row is created then, after it's iterated over, we need to push that row into our tableRows array.
-//So let's do that now: tableRows.push().
-//And we want to push dataRow into our tableRows array.
-//So I'll save that.
-//And let's see what we get.
-//So if I click on films, it doesn't quite work there.
-//That's because of the $.
-//I have the $ in the wrong place.
-//I just need to switch it.
-//Okay, let's try that again.
-//Click on films.
-//And now we can see that we have the data being displayed.
-//Now, it's not terribly pretty, but it's tabular data nonetheless.
-//In our next video, we're going to have a look at how we can clean this up a little bit because, as we can see, it's not presented very nicely.
-//But for now, it's functional.
-//We'll take a look at the form in our next video.
+//In our last video, we saw how to get 10 rows of information being displayed.
+//But what we need to do is implement some pagination in order to view the rest of the data that's being returned.
+//So what I'm going to do in my wrtieToDocument() function is put an if statement.
+//And if (data.next || data.previous) values exist, then we're going to generate some pagination buttons, some next and previous buttons.
+//So we're going to create a function called generatePaginationButtons().
+//And we're going to send in the values of data.next and data.previous.
+//And I just need to create a pagination variable here as well.
+//Okay, so we'll create a function now.
+//That's going to be called generatePaginationButtons().
+//It's going to take two arguments, next and previous.
+//And what we want to do is generate next and previous buttons.
+//I'm going to say that if there is a value, a URL, for both next and previous, then I'm going to return a template literal that creates a next and a previous button.
+//Now we won't always have a next and a previous value.
+//If we're at the beginning, then it doesn't supply a previous value. If we're at the end, it won't supply a next value.
+//So we're going to create some buttons.
+//We're going to give them the onclick event of writeToDocument.
+//And we want it to create the URL, so we'll put previous in here.
+//And then we can close our button.
+//So if the next and the previous values exist, then we want to return both next and previous buttons.
+//So let's just create our next button here then.
+//So this will get the value of the URL for next.
+//And we'll have two buttons.
+//Now we're going to put an else if.
+//So in this instance, our data has just returned a next button. It has not returned a previous, so we're going to use not.
+//So if next, but not previous, then all we want to do is return the next button.
+//Let's return that as a template literal in between our two back quotes.
+//Otherwise, if we have no next button, but we only have a previous button, that must mean that we're right at the end of our data set, and so we just want to return the link to previous.
+//So we'll put in previous.
+//I've just noticed there that I have been putting in previous instead of prev. That needs to match the arguments that we're passing through, so let's just change those.
+//And now I just need to add my new pagination variable to the end of my table, so it will be displayed.
+//If I just go ahead now and refresh the screen.
+//Click on people. We can see I get my next button at the end there.
+//I click on it, and it's not working.
+//Let's just inspect that and see why.
+//This often happens with code.
+//And as we can see, what's actually happening is that the URL we want is been appended onto the base URL.
+//So we need to change that functionality in our writeToDocument() function.
+//So what I'm going to do is to change both the JavaScript and the HTML to account for this.
+//The first thing we'll do is get rid of the base URL constant.
+//And now we'll pass in full URLs each time.
+//So now, rather than a type, I'm going to call it URL.
+//And I need to change that too in my writeToDocument(). It's URL instead of type.
+//Similarly, when I run the getData() function, I need to pass in URL instead of type.
+//Okay, so now I need to update my HTML code.
+//Instead of just passing in the type, I'm now going to send in the full URL to our API endpoint.
+//So that's http://swapi.co/api/people
+//I'm going to do the same for each of these.
+//Save that.
+//Refresh the page again.
+//Let's have a look.
+//We still seem to have an issue here, so let's inspect again.
+//And type is not defined at main.js line 4.
+//We can see that I'm still sending in the type here. We don't need that anymore. It literally is just a URL that we need, so I can get rid of that.
+//So now I'll refresh my page.
+//And there we go.
+//My next button works.
+//Just close that.
+//So the next button works.
+//We can go right to the end of our data set.
+//The previous button works.
+//And there we have it.
+//Pagination is working for all of the different types of data that we have.
+//There are still a few loose ends that need to be tied up, though, before this project is complete.
+//So we'll do that in our next video.
