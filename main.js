@@ -1,71 +1,86 @@
-function getData(cb) {
-    var xhr = new XMLHttpRequest();
+const baseURL = "https://swapi.co/api/";
 
-    xhr.open("GET", "https://swapi.co/api/");
-    xhr.send();
+function getData(type, cb) {
+    var xhr = new XMLHttpRequest();
 
     xhr.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
             cb(JSON.parse(this.responseText));
         }
     };
+
+    xhr.open("GET", baseURL + type + "/");
+    xhr.send();
 }
 
-function printDataToConsole(data) {
-    console.log(data);
+function getTableHeaders(obj) {
+    var tableHeaders = [];
+
+    Object.keys(obj).forEach(function(key) {
+        tableHeaders.push(`<td>${key}</td>`)
+    });
+
+    return `<tr>${tableHeaders}</tr>`;
 }
 
-getData(printDataToConsole);
+function writeToDocument(type) {
+    var el = document.getElementById("data");
+    el.innerHTML = "";
 
-//  to talk about using callback functions.
-//So what is a callback function?
-//A good thing to remember in JavaScript is that everything is made of objects.
-//And a function is also an object.
-//Because of this, it can be parsed as a parameter, or argument, to another function.
-//And at its simplest, that's what a callback is: a function that's parsed as a parameter to another function and executed inside that function.
-//Callbacks are used a lot in JavaScript, especially in jQuery, which we'll come onto later.
-//You've already seen examples of callback functions, too, when we were learning Jasmine.
-//And we're going to write a callback function that will be called when our data variable contains response text.
-//But why not just use timeouts like we did in our last video?
-//Well, one of the problems with having to set timeouts in our code is that we'd have to tell our system to wait every time we wanted something to happen.
-//And it could take different amounts of time depending on different circumstances, such as network speed.
-//So let's take a look at a way we can get around that using a callback.
-//So I'm going to take away my data variable, and, instead, I'm going to create a new function called "getData".
-//Then I'm going to move all of the code that we use for our xhr request into that function.
-//So I'll highlight it and then press ctrl+shift+B, or command+shift+B on the Mac, just to beautify our code and get the indents right.
-//We can take out the "setTimeout" function here now too because we don't need it anymore.
-//So I'm going to use the parameter here, the argument, of "cb".
-//"cb" standing for callback, and this will be the function that we parse in.
-//When I then use cb on line 9 here, that's going to actually run the function that we parse in as a callback.
-//So for this to work, we need to invoke a getData method with a function.
-//So let me write one here inside the parentheses. This is an anonymous function.
-//And it's just going to say "console.log(data).
-//So I also need to parse data in as a parameter inside the braces here.
-//So when this runs, what it will do is parse itself in as a function.
-//That function will be executed here with this as the data argument.
-//So let's save this code now.
-//And I'm just going to run it, and we'll see what happens.
-//So as we can see, the data has been logged to the console, which is exactly what we would expect.
-//Now the reason we don't need to set a timeout here is because we are explicitly invoking our getData function.
-//We're checking to see if our readyState is 4 and the status is equal to 200.
-//And at that stage, we're then invoking our callback function that we parsed through as an argument.
-//So what this basically means is that when our script gets to this point, it's going to run the function that we parsed in to getData as an argument.
-//And this just gives us more control within our code base.
-//What we could also do instead of actually writing the function inside the brackets for getData, is we could write a separate function.
-//So I'm going to create a new function called "printDataToConsole".
-//Again, that's going to take in "data" as an argument.
-//And as before, that's going to console.log the data.
-//Now inside the brackets, when I'm calling my getData function, I'm going to parse in the "printDataToConsole" function as an argument.
-//And notice I don't put the opening and closing brackets because I'm parsing in the actual function itself.
-//Okay, let's try that.
-//And on line 15, I have a colon instead of a semicolon. Let's just remove that.
-//Run it.
-//And there's our data once again.
-//So as you can see, callback functions are very useful.
-//They get around the problem of having to use timeouts.
-//They still allow us full control over our data because they're only invoked when we actually want them to be.
-//So in this unit, we've looked at how to speak to our API using JavaScript.
-//We've seen how to get our response text back as a string and how to turn it into JSON format.
-//We've looked at different readyStates and HTTP status codes.
-//And finally, we've seen how to use both timeouts and callback functions to get our data displaying when we want it to.
-//Now that we know how to get the data and how to parse it, let's start doing something useful with it.
+    getData(type, function(data) {
+        data = data.results;
+        var tableHeaders = getTableHeaders(data[0]);
+
+        data.forEach(function(item) {
+            // el.innerHTML += "<p>" + item.name + "</p>";
+        });
+
+        el.innerHTML = `<table>${tableHeaders}</table>`;
+    });
+}
+
+//As well as getting our films button working, what we'd really like to do is be able to display the data nicely and neatly in a table format.
+//And that's what we're going to start doing in this video.
+//Now in order to do this, JavaScript allows us to iterate over all of the keys.
+//Remember that the data is stored in key-value pairs; keys such as "name", and values such as Luke Skywalker, Obi-Wan Kenobi, so on and so forth.
+//So if I do "object.keys", and then I pass in "item" here inside our forEach loop.
+//And do another forEach loop inside.
+//Then I can actually iterate over each of these keys.
+//And I'm going to put a function inside here again, just like we have with our first forEach loop.
+//And I'm just going to "console.log" each key.
+//Okay, so if I save that, go over to my browser, click on films, then you'll see that it gives me a list of all of the keys.
+//And we can see that the problem is films doesn't have a key called "name".
+//It has "title" instead, which becomes a problem because we're dealing specifically with a name.
+//But what we want to do is use this kind of approach to iterate over the keys to build ourselves a table full of data without actually explicitly specifying a property.
+//And we can allow JavaScript to do that for us.
+//So we're going to create a new function called "getTableHeaders".
+//And this is going to take in a single object, we'll just call it "obj".
+//And then we're going to create a new array called "tableHeaders", which we're going to initialize as an empty array.
+//After that, we're going to use the same code again.
+//We're going to take our object and iterate over the keys.
+//So we'll do a forEach function once again.
+//The function inside this is going to iterate over each key and push it to our tableHeaders array.
+//Now, we're not just going to push the key.
+//We want this to be formatted nicely, so we're going to send in a <td> to create a new table cell.
+//Then the key.
+//And then we're going to close our table cell.
+//And what we're going to do is add each of those to a row.
+//Notice I'm using this backtick, or back quote, formation here. Those are not standard single quotes.
+//This is something called a template literal, which allows us to interpolate variables and strings like this.
+//Okay, so I'm going to return the tableHeaders.
+//Back inside our writeToDocument function, we now need to invoke that function where we're calling our getTableHeaders.
+//So once we've retrieved our data, we'll call the getTableHeaders function.
+//Now we're going to pass through the first object in the array.
+//And just for now, we're going to go down to the end and set the innerHTML of "el" to our table headers.
+//So I'll just comment out the other one and just set the innerHTML.
+//And we're going to use the template literal again to send in a table.
+//And then we're going to write the tableHeaders variable in there.
+//No, I actually haven't created the tableHeaders variable yet on line 32, so I'll go back and correct that in a second.
+//Close the table.
+//Semicolon
+//And I'm going to call this "tableHeaders".
+//"var tableHeaders = getTableHeaders(data[0])"
+//So now if I refresh the page and click on films, we can see I have a table row that contains each of the keys from a film object.
+//So that's good.
+//We don't have to specify name or any of the properties that are contained in our data. It's going to build the table for us.
+//In our next video, we're going to add to this table and get some more data displaying on screen.//
