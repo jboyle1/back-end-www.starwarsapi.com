@@ -28,59 +28,53 @@ function writeToDocument(type) {
     el.innerHTML = "";
 
     getData(type, function(data) {
+        var tableRows = [];
         data = data.results;
         var tableHeaders = getTableHeaders(data[0]);
 
         data.forEach(function(item) {
-            // el.innerHTML += "<p>" + item.name + "</p>";
+            var dataRow = [];
+
+            Object.keys(item).forEach(function(key) {
+                dataRow.push(`<td>${item[key]}</td>`);
+            });
+            tableRows.push(dataRow)
         });
 
         el.innerHTML = `<table>${tableHeaders}</table>`;
     });
 }
 
-//As well as getting our films button working, what we'd really like to do is be able to display the data nicely and neatly in a table format.
-//And that's what we're going to start doing in this video.
-//Now in order to do this, JavaScript allows us to iterate over all of the keys.
-//Remember that the data is stored in key-value pairs; keys such as "name", and values such as Luke Skywalker, Obi-Wan Kenobi, so on and so forth.
-//So if I do "object.keys", and then I pass in "item" here inside our forEach loop.
-//And do another forEach loop inside.
-//Then I can actually iterate over each of these keys.
-//And I'm going to put a function inside here again, just like we have with our first forEach loop.
-//And I'm just going to "console.log" each key.
-//Okay, so if I save that, go over to my browser, click on films, then you'll see that it gives me a list of all of the keys.
-//And we can see that the problem is films doesn't have a key called "name".
-//It has "title" instead, which becomes a problem because we're dealing specifically with a name.
-//But what we want to do is use this kind of approach to iterate over the keys to build ourselves a table full of data without actually explicitly specifying a property.
-//And we can allow JavaScript to do that for us.
-//So we're going to create a new function called "getTableHeaders".
-//And this is going to take in a single object, we'll just call it "obj".
-//And then we're going to create a new array called "tableHeaders", which we're going to initialize as an empty array.
-//After that, we're going to use the same code again.
-//We're going to take our object and iterate over the keys.
-//So we'll do a forEach function once again.
-//The function inside this is going to iterate over each key and push it to our tableHeaders array.
-//Now, we're not just going to push the key.
-//We want this to be formatted nicely, so we're going to send in a <td> to create a new table cell.
-//Then the key.
-//And then we're going to close our table cell.
-//And what we're going to do is add each of those to a row.
-//Notice I'm using this backtick, or back quote, formation here. Those are not standard single quotes.
-//This is something called a template literal, which allows us to interpolate variables and strings like this.
-//Okay, so I'm going to return the tableHeaders.
-//Back inside our writeToDocument function, we now need to invoke that function where we're calling our getTableHeaders.
-//So once we've retrieved our data, we'll call the getTableHeaders function.
-//Now we're going to pass through the first object in the array.
-//And just for now, we're going to go down to the end and set the innerHTML of "el" to our table headers.
-//So I'll just comment out the other one and just set the innerHTML.
-//And we're going to use the template literal again to send in a table.
-//And then we're going to write the tableHeaders variable in there.
-//No, I actually haven't created the tableHeaders variable yet on line 32, so I'll go back and correct that in a second.
-//Close the table.
-//Semicolon
-//And I'm going to call this "tableHeaders".
-//"var tableHeaders = getTableHeaders(data[0])"
-//So now if I refresh the page and click on films, we can see I have a table row that contains each of the keys from a film object.
-//So that's good.
-//We don't have to specify name or any of the properties that are contained in our data. It's going to build the table for us.
-//In our next video, we're going to add to this table and get some more data displaying on screen.//
+//In our last video, we put our table headers in place.
+//Now let's start adding tabular data to the rest of our table.
+//To do this, we're going to create a new row of data for every record in the array.
+//So what I'm going to do at the top of my writeToDocument() function is I'm going to create a new empty array called tableRows.
+//and tableRows will house each row of data for us.
+//So we'll just create that as an empty array.
+//And then following the table heading, I'm going to add that into a template literal here, tableRows.
+//So we'll have our heading, and then we'll have rows of data.
+//And now in our forEach() function here, what we need to do is create an empty array, first of all, for each individual row.
+//and then we're going to iterate over our keys again.
+//So using the same method as before, object.keys(item)
+//Use the farEach() method.
+//The function inside that is going to push each element onto our data row.
+//And what I want to do is create a new 'td', or tableCell element, for each of these items.
+//So we'll do that in our template literal here.
+//And what we do is we have {$item}, and then we pass in [key] as the index, so this will actually get us the data that's in each individual key. Rather than just the key name itself, we'll get the value.
+//Okay, so that's creating an individual row.
+//When that row is created then, after it's iterated over, we need to push that row into our tableRows array.
+//So let's do that now: tableRows.push().
+//And we want to push dataRow into our tableRows array.
+//So I'll save that.
+//And let's see what we get.
+//So if I click on films, it doesn't quite work there.
+//That's because of the $.
+//I have the $ in the wrong place.
+//I just need to switch it.
+//Okay, let's try that again.
+//Click on films.
+//And now we can see that we have the data being displayed.
+//Now, it's not terribly pretty, but it's tabular data nonetheless.
+//In our next video, we're going to have a look at how we can clean this up a little bit because, as we can see, it's not presented very nicely.
+//But for now, it's functional.
+//We'll take a look at the form in our next video.
